@@ -52,7 +52,7 @@ So these are computed in `src/data/derive.ts`:
 src/data      parse.ts (export → dataset), derive.ts (trips, sessions, aggregates), tests
 src/store     dataset context, storage and file picker (.web / .native variants)
 src/charts    Bars, XYChart (react-native-svg)
-src/screens   Übersicht, Laden, Fahrten, Logbuch, Import
+src/screens   Übersicht, Laden, Fahrten, Logbuch, Stand & Klima, Fahrzeug, Signale, Import
 src/theme     colour and type tokens
 ```
 
@@ -62,8 +62,14 @@ src/theme     colour and type tokens
 installs the native modules (AsyncStorage, document picker, file system). This script and the
 `.native.ts` files have not been run on a device yet.
 
+## GitHub Pages
+
+Every push to `main` runs the tests and deploys the browser build with
+`.github/workflows/pages.yml`. In the repository settings, Pages must use **GitHub Actions** as
+its source. The published page is only the app: it contains no vehicle data, and a file you load
+there stays in your browser.
+
 ## Not built yet
 
-Screens from the design that the current export cannot fill (map of places, cell voltages, tyre
-pressure, costs), the vehicle timeline (warnings, service), the signal explorer, MapLibre, and the
-collector that polls the portal every 15 minutes.
+Screens from the design that the export cannot fill (map of places, cell voltages, tyre pressure,
+costs), MapLibre, and the collector that polls the portal every 15 minutes.

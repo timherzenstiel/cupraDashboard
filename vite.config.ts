@@ -34,6 +34,8 @@ function preferWebFiles(): Plugin {
 
 // The browser build runs the same React Native code through react-native-web.
 export default defineConfig({
+  // Relative asset paths, so the build works under any GitHub Pages sub-path.
+  base: './',
   plugins: [preferWebFiles(), react()],
   resolve: {
     alias: [

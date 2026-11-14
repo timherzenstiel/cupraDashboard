@@ -8,10 +8,10 @@ import { niceMax, ticksUpTo } from '../charts/scale';
 import { Card, Grid, Kpi, ListRow, Mono, Sub } from '../ui/primitives';
 import { colors, space } from '../theme/tokens';
 import { MONTHS, clock, dateShort, duration, monthLabel, num } from '../format';
-import { median, standbyPerDay } from './Overview';
+import { median } from './Overview';
 
 export function Trips({ data }: { data: Derived }) {
-  const { trips, sessions, capacity, standby } = data;
+  const { trips, sessions, capacity } = data;
   const m = useMemo(() => {
     const km = trips.reduce((s, t) => s + t.km, 0);
     const hours = trips.reduce((s, t) => s + t.minutes, 0) / 60;
@@ -27,7 +27,6 @@ export function Trips({ data }: { data: Derived }) {
   const rangeMonths = m.months.filter((b) => b.driveKm > 200);
   const range = (b: (typeof rangeMonths)[number]) => capacity / (b.driveKwh / b.driveKm);
   const rangeY = niceMax(Math.max(1, ...rangeMonths.map(range)), 4);
-  const longStandby = standby.slice().sort((a, b) => b.hours - a.hours).slice(0, 5);
 
   return (
     <View style={{ gap: space.gap }}>
@@ -80,18 +79,6 @@ export function Trips({ data }: { data: Derived }) {
             ))}
           </View>
           <Sub>Letzte Spalte: kWh je 100 km.</Sub>
-        </Card>
-        <Card title="Standverluste" note={standby.length ? 'Im Mittel ' + num(standbyPerDay(standby), 2) + ' Prozentpunkte je Tag, über ' + standby.length + ' Standphasen ab 12 Stunden ohne Ladekabel.' : 'Keine Standphase ab 12 Stunden ohne Ladekabel gefunden.'} source="currentSOCInPct · plugConnectionState · mileage">
-          <View>
-            {longStandby.map((s, i) => (
-              <ListRow key={s.start} first={i === 0}>
-                <Mono style={{ width: 80 }}>{dateShort(s.start)}</Mono>
-                <Mono style={{ flex: 1 }}>{num(s.hours / 24, 1) + ' Tage'}</Mono>
-                <Mono style={{ color: colors.text2 }}>{num(s.socStart) + ' → ' + num(s.socEnd) + ' %'}</Mono>
-                <Mono style={{ width: 90, textAlign: 'right' }}>{num(s.perDay, 2) + ' /Tag'}</Mono>
-              </ListRow>
-            ))}
-          </View>
         </Card>
       </Grid>
     </View>
