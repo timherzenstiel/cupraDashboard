@@ -49,10 +49,11 @@ So these are computed in `src/data/derive.ts`:
 ## Layout
 
 ```
-src/data      parse.ts (export → dataset), derive.ts (trips, sessions, aggregates), tests
+src/data      parse.ts (export → dataset), merge.ts, derive.ts (trips, sessions, aggregates), tests
 src/store     dataset context, storage and file picker (.web / .native variants)
 src/charts    Bars, XYChart (react-native-svg)
-src/screens   Übersicht, Laden, Fahrten, Logbuch, Stand & Klima, Fahrzeug, Signale, Import
+src/screens   Übersicht, Laden, Fahrten, Logbuch, Stand & Klima, Fahrzeug, Signale, Daten, Import
+collector/    fetches the portal's 15-minute packages (Node, separate package.json)
 src/theme     colour and type tokens
 ```
 
@@ -69,7 +70,15 @@ Every push to `main` runs the tests and deploys the browser build with
 its source. The published page is only the app: it contains no vehicle data, and a file you load
 there stays in your browser.
 
+## Keeping the data current
+
+- **Another export:** "Export hinzufügen" on the Daten tab merges a newer file into what is loaded.
+- **Automatically:** the collector in `collector/` fetches the portal's 15-minute packages and the
+  dashboard syncs from it. See `collector/README.md`; its sign-in step is not yet tried against the
+  real portal.
+
 ## Not built yet
 
 Screens from the design that the export cannot fill (map of places, cell voltages, tyre pressure,
-costs), MapLibre, and the collector that polls the portal every 15 minutes.
+costs) and MapLibre. The continuous packages may carry outside temperature and climatisation
+energy; charts for those wait for a first real package.

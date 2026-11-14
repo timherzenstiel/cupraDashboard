@@ -43,6 +43,8 @@ export type Dataset = {
   /** 0 off, 1 heating, 2 cooling, 3 ventilation. */
   clima: Series;
   inspectionDays: Series;
+  /** Outside temperature in °C. Only the continuous 15-minute data carries it; empty for the one-time export. */
+  outdoorTemp: Series;
   sessions: Session[];
   curves: Record<string, CurvePoint[]>;
   /** Charged energy per day as reported by the car: [dayStartMs, kWh]. */

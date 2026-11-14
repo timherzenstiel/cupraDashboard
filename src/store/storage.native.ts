@@ -14,3 +14,6 @@ export async function loadDataset(): Promise<Dataset | null> {
 }
 export const saveDataset = (ds: Dataset) => AsyncStorage.setItem(KEY, JSON.stringify(ds));
 export const clearDataset = () => AsyncStorage.removeItem(KEY);
+
+export const loadSetting = (key: string) => AsyncStorage.getItem('born-datenlabor/' + key).catch(() => null);
+export const saveSetting = (key: string, value: string | null) => (value == null ? AsyncStorage.removeItem('born-datenlabor/' + key) : AsyncStorage.setItem('born-datenlabor/' + key, value));

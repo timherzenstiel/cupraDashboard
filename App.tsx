@@ -8,6 +8,7 @@ import { Logbook } from './src/screens/Logbook';
 import { Standby } from './src/screens/Standby';
 import { Vehicle } from './src/screens/Vehicle';
 import { Signals } from './src/screens/Signals';
+import { Sources } from './src/screens/Sources';
 import { Import } from './src/screens/Import';
 import { Button, Mono, Sub, T } from './src/ui/primitives';
 import { colors, font, space } from './src/theme/tokens';
@@ -21,6 +22,7 @@ const TABS = [
   { id: 'standby', label: 'Stand & Klima' },
   { id: 'vehicle', label: 'Fahrzeug' },
   { id: 'signals', label: 'Signale' },
+  { id: 'sources', label: 'Daten' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -47,7 +49,7 @@ function Wrap({ bottom, children }: { bottom?: boolean; children: React.ReactNod
 }
 
 function Shell() {
-  const { status, data, error, importFile } = useData();
+  const { status, data, error, sync } = useData();
   const [tab, setTab] = useState<TabId>('overview');
   const { width } = useWindowDimensions();
   const narrow = width < 760;
@@ -66,12 +68,12 @@ function Shell() {
         {narrow ? <View style={{ flexGrow: 1 }} /> : <Tabs tab={tab} setTab={setTab} />}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           {!narrow ? <Sub>{dateShort(ds.from) + ' – ' + dateShort(ds.to)}</Sub> : null}
-          <Button label={status === 'importing' ? 'Liest …' : 'Export laden'} onPress={importFile} />
+          <Button accessibilityLabel="Datenquellen öffnen" label={sync.state === 'ok' ? 'Sync an' : sync.state === 'error' ? 'Sync-Fehler' : 'Daten'} onPress={() => setTab('sources')} />
         </View>
       </View>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: narrow ? 16 : space.page, paddingBottom: 48, maxWidth: 1440, width: '100%', alignSelf: 'center', gap: space.gap }}>
         {error ? <T style={{ color: colors.accent }}>{error}</T> : null}
-        {tab === 'overview' ? <Overview data={data} /> : tab === 'charging' ? <Charging data={data} /> : tab === 'trips' ? <Trips data={data} /> : tab === 'logbook' ? <Logbook data={data} /> : tab === 'standby' ? <Standby data={data} /> : tab === 'vehicle' ? <Vehicle data={data} /> : <Signals data={data} />}
+        {tab === 'overview' ? <Overview data={data} /> : tab === 'charging' ? <Charging data={data} /> : tab === 'trips' ? <Trips data={data} /> : tab === 'logbook' ? <Logbook data={data} /> : tab === 'standby' ? <Standby data={data} /> : tab === 'vehicle' ? <Vehicle data={data} /> : tab === 'signals' ? <Signals data={data} /> : <Sources data={data} />}
         <Sub style={{ fontSize: 12, color: colors.muted }}>{'Stand der Daten: ' + dateShort(ds.to) + ' · ' + num(ds.recordCount) + ' Datenpunkte importiert am ' + dateShort(ds.importedAt)}</Sub>
       </ScrollView>
       {narrow ? <View style={{ borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.ground }}><Tabs tab={tab} setTab={setTab} bottom /></View> : null}

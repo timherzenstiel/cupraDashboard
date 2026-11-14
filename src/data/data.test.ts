@@ -94,3 +94,20 @@ test('climaEvents drops blips and records whether the car was plugged in', async
   const shown = displayedFullRange(ds).get('2026-03') ?? 0;
   assert.ok(shown >= 400 && shown <= 427, 'range scaled to a full battery');
 });
+
+test('mergeDatasets is idempotent and extends the period', async () => {
+  const { mergeDatasets } = await import('./merge.ts');
+  const a = parseExport(fixture());
+  assert.deepEqual(mergeDatasets(a, a).odo, a.odo);
+  assert.equal(mergeDatasets(a, a).sessions.length, 1);
+  // A continuous package from the collector: other field names, one snapshot a day later.
+  const later = T0 + 24 * 60 * MIN;
+  const b = parseExport({ Data: [row('mileage.value', 1100, later), row('battery_state_report.soc', 55, later), row('outdoor_temperature', 281.15, later), row('plug_connection_state', 'connected', later)] });
+  const m = mergeDatasets(a, b);
+  assert.equal(m.odo[m.odo.length - 1][1], 1100);
+  assert.equal(m.to, later);
+  assert.equal(m.from, a.from);
+  assert.deepEqual(m.outdoorTemp, [[later, 8]]);
+  assert.equal(m.plug[m.plug.length - 1][1], 1);
+  assert.equal(deriveTrips(m).length, 3);
+});

@@ -11,7 +11,7 @@ export function parseTime(s: string | undefined): number {
   return t > MIN_T ? t : NaN;
 }
 
-function finish(points: Series): Series {
+export function finish(points: Series): Series {
   points.sort((a, b) => a[0] - b[0]);
   const out: Series = [];
   for (const p of points) {
@@ -24,13 +24,26 @@ function finish(points: Series): Series {
 }
 
 const CLIMA: Record<string, number> = { off: 0, heating: 1, cooling: 2, ventilation: 3 };
-const SIMPLE: Record<string, 'soc' | 'rangeKm' | 'odo' | 'power' | 'inspectionDays'> = {
+type SimpleKey = 'soc' | 'rangeKm' | 'odo' | 'power' | 'inspectionDays' | 'outdoorTemp';
+const SIMPLE: Record<string, SimpleKey> = {
+  // One-time (historical) export.
   currentSOCInPct: 'soc',
   cruisingRangeElectricInKm: 'rangeKm',
   mileage: 'odo',
   chargePowerInKW: 'power',
   inspectionDueDays: 'inspectionDays',
+  // Continuous 15-minute packages use other names for the same things. These come from the
+  // portal's data dictionary and have not yet been checked against a package from a Born.
+  'battery_state_report.soc': 'soc',
+  'mileage.value': 'odo',
+  'range.value': 'rangeKm',
+  value_of_the_primary_range: 'rangeKm',
+  'battery_state_report.charge_power': 'power',
+  charging_power: 'power',
+  outdoor_temperature: 'outdoorTemp',
+  'outdoor_temperature.temperature': 'outdoorTemp',
 };
+const PLUG_FIELDS = new Set(['plugConnectionState', 'plug_connection_state', 'charging_plug1_connectionstate', 'plug_state']);
 
 /**
  * Turns the parsed export ({ vin, userId, Data: [...] }) into the compact dataset.
@@ -40,7 +53,7 @@ export function parseExport(json: unknown, now = Date.now()): Dataset {
   const rows: Raw[] = (json as { Data?: Raw[] })?.Data ?? [];
   if (!Array.isArray(rows)) throw new Error('Keine "Data"-Liste in der Datei gefunden.');
 
-  const series = { soc: [] as Series, rangeKm: [] as Series, odo: [] as Series, power: [] as Series, inspectionDays: [] as Series };
+  const series: Record<SimpleKey, Series> = { soc: [], rangeKm: [], odo: [], power: [], inspectionDays: [], outdoorTemp: [] };
   const plug: Series = [];
   const clima: Series = [];
   const sess = new Map<number, Record<string, string>>();
@@ -62,7 +75,9 @@ export function parseExport(json: unknown, now = Date.now()): Dataset {
 
     const simple = SIMPLE[name];
     if (simple) {
-      const v = Number(value);
+      let v = Number(value);
+      // Temperatures above 200 can only be Kelvin.
+      if (simple === 'outdoorTemp' && v > 200) v = Math.round((v - 273.15) * 10) / 10;
       if (!Number.isNaN(t) && value !== '' && Number.isFinite(v)) {
         series[simple].push([t, v]);
         if (t < from) from = t;
@@ -70,7 +85,7 @@ export function parseExport(json: unknown, now = Date.now()): Dataset {
       }
       continue;
     }
-    if (name === 'plugConnectionState') {
+    if (PLUG_FIELDS.has(name)) {
       if (!Number.isNaN(t)) plug.push([t, value.toLowerCase() === 'connected' ? 1 : 0]);
       continue;
     }
@@ -172,6 +187,7 @@ export function parseExport(json: unknown, now = Date.now()): Dataset {
     plug: finish(plug),
     clima: finish(clima),
     inspectionDays: finish(series.inspectionDays),
+    outdoorTemp: finish(series.outdoorTemp),
     sessions,
     curves,
     aggDay: agg(aggDay),

@@ -26,6 +26,11 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run typecheck
+      - name: Collector tests
+        working-directory: collector
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci && npm test
       - run: npm run build:web
       - uses: actions/upload-pages-artifact@v3
         with:

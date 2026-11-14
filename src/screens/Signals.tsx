@@ -15,6 +15,7 @@ const SIGNALS: Sig[] = [
   { id: 'odo', title: 'Kilometerstand', field: 'mileage', unit: 'km', digits: 0, pick: (d) => d.odo },
   { id: 'plug', title: 'Ladekabel gesteckt', field: 'plugConnectionState', unit: '', digits: 0, pick: (d) => d.plug },
   { id: 'clima', title: 'Klimatisierung', field: 'climatisationState', unit: '', digits: 0, pick: (d) => d.clima },
+  { id: 'temp', title: 'Außentemperatur', field: 'outdoor_temperature', unit: '°C', digits: 1, pick: (d) => d.outdoorTemp },
   { id: 'insp', title: 'Tage bis Inspektion', field: 'inspectionDueDays', unit: 'Tage', digits: 0, pick: (d) => d.inspectionDays },
 ];
 type Range = '24h' | '7d' | '30d' | 'all';
