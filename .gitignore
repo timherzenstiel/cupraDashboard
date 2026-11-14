@@ -2,7 +2,7 @@ node_modules/
 dist/
 .rn-scaffold/
 # Vehicle exports contain the VIN and a full movement history. Never commit them.
-data/
+/data/
 *.export.json
 VSS*.json
 .DS_Store
