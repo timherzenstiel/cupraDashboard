@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleSuffixes": [".web", ""],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "include": ["src", "App.tsx", "index.web.tsx", "vite.config.ts"],
+  "exclude": ["node_modules", "android", "ios", "dist", "src/**/*.native.ts", "src/**/*.native.tsx"]
+}
